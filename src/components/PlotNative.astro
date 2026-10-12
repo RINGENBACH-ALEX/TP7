@@ -1,0 +1,20 @@
+---
+// Graphique Plot rendu côté serveur SANS enveloppe role="img" : on garde la
+// structure produite par Plot elle-même. Avec les options title / subtitle /
+// caption, Plot.plot() renvoie un <figure> (h2, h3, svg, figcaption) ; ariaLabel
+// et ariaDescription sont posés directement sur le <svg>.
+import * as Plot from "@observablehq/plot";
+import { JSDOM } from "jsdom";
+
+interface Props {
+  options: Record<string, unknown>;
+}
+const { options } = Astro.props;
+
+const plot = Plot.plot({ ...options, document: new JSDOM("").window.document });
+---
+
+<div
+  class="overflow-x-auto rounded-3xl bg-white p-4 text-ink sm:p-8 [&_figcaption]:mt-4 [&_figcaption]:text-sm [&_figcaption]:text-slate-600 [&_h2]:text-lg [&_h2]:font-bold [&_h3]:mt-1 [&_h3]:text-sm [&_h3]:font-normal [&_h3]:text-slate-500 [&_svg]:mt-3 [&_svg]:h-auto [&_svg]:max-w-full"
+  set:html={plot.outerHTML}
+/>

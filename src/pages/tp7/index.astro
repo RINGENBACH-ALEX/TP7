@@ -1,0 +1,30 @@
+---
+// Sommaire du TP7 : les cartes viennent directement de l'entrée TP7 de
+// src/lib/menu.ts, il suffit d'y ajouter une page pour qu'elle apparaisse ici.
+import Layout from "../../layouts/Layout.astro";
+import LinkCards from "../../components/LinkCards.astro";
+import { menu } from "../../lib/menu";
+
+const tp7 = menu.find((m) => m.label === "TP7")!;
+const pages = tp7.links
+  .filter((l) => l.href !== "/tp7/")
+  .map((l) => ({ href: l.href, title: l.label, text: l.text }));
+---
+
+<Layout title="TP7">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP7 R3.12 · Dataviz</p>
+  <h1 class="font-display text-3xl leading-none sm:text-6xl">TP7</h1>
+  <p class="mt-8 max-w-lg text-lg leading-relaxed text-white/85">
+    Toutes les pages réalisées pendant le TP7, accessibles aussi depuis le menu « TP7 ».
+  </p>
+
+  {
+    pages.length > 0 ? (
+      <LinkCards label="Les pages du TP7" links={pages} />
+    ) : (
+      <p class="mt-10 rounded-3xl border border-white/15 bg-white/5 p-6 text-sm text-white/70">
+        Aucune page pour l'instant : elles arrivent au fil du TP.
+      </p>
+    )
+  }
+</Layout>

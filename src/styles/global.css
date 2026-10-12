@@ -1,1 +1,64 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Bevan";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/bevan-latin.woff2") format("woff2");
+}
+
+@theme {
+  --font-display: "Bevan", Georgia, serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --color-crimson: #c50337;
+  --color-ink: #02060e;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ink);
+  color: #fff;
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-crimson);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-crimson);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* piste du slider sans barre de défilement visible */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/*
+ * Les grilles d'Observable Plot (grid: true) sont dessinées avec
+ * stroke-opacity: 0.1 par défaut, quasi invisibles sur le fond blanc des
+ * graphiques : on les rend plus contrastées pour qu'elles soient lisibles.
+ */
+[aria-label="x-grid"] line,
+[aria-label="y-grid"] line,
+[aria-label="fx-grid"] line,
+[aria-label="fy-grid"] line {
+  stroke: #94a3b8;
+  stroke-opacity: 0.6;
+}

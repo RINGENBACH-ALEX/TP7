@@ -1,0 +1,61 @@
+---
+// TP2 : les 3 graphiques dans un slider, menu à ancres + IntersectionObserver
+import Layout from "../../layouts/Layout.astro";
+import ChartCard from "../../components/ChartCard.astro";
+import { penguinChart } from "../../lib/penguins";
+
+const especes = ["Adelie", "Gentoo", "Chinstrap"];
+---
+
+<Layout title="TP2 · Page à ancres">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP2 · Une page avec des ancres</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Les 3 espèces sur une seule page</h1>
+
+  <nav aria-label="Aller à un graphique" class="my-6 flex flex-wrap gap-2 text-[10px] font-bold uppercase tracking-[.18em]">
+    {
+      especes.map((id) => (
+        <a
+          href={`#${id}`}
+          aria-label={`Aller au graphique ${id}`}
+          class="menu-item rounded-full border border-white/20 px-4 py-2 transition hover:border-crimson hover:text-crimson [&.active]:border-crimson [&.active]:bg-crimson [&.active]:text-white"
+        >
+          {id}
+        </a>
+      ))
+    }
+  </nav>
+
+  <!-- slider horizontal en CSS : flex + overflow-x-auto + scroll-snap -->
+  <div
+    role="region"
+    aria-label="Graphiques des trois espèces (faire défiler horizontalement)"
+    tabindex="0"
+    class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto rounded-[1.75rem] border border-white/10 bg-white/5 p-4"
+  >
+    {
+      especes.map((id) => (
+        <section id={id} aria-labelledby={`fig-${id}`} class="item w-full shrink-0 snap-start">
+          <ChartCard chart={penguinChart(id)} headingId={`fig-${id}`} />
+        </section>
+      ))
+    }
+  </div>
+</Layout>
+
+<script>
+  // Le lien du menu correspondant au graphique visible dans le slider est mis en avant
+  const items = document.querySelectorAll(".item");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const id = entry.target.getAttribute("id");
+        const menuItem = document.querySelector(`.menu-item[href="#${id}"]`);
+        menuItem?.classList.toggle("active", entry.isIntersecting);
+      });
+    },
+    { threshold: 0.5 },
+  );
+
+  items.forEach((item) => observer.observe(item));
+</script>

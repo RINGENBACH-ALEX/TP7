@@ -1,0 +1,26 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import LinkCards from "../../components/LinkCards.astro";
+import { species, penguins, islandsOf } from "../../lib/penguins";
+
+// Un lien par espèce, généré par une boucle sur la liste calculée automatiquement
+const links = species.map((sp) => ({
+  href: `/rendu-dynamique/${sp}/`,
+  tag: "Espèce",
+  title: sp,
+  text: `${penguins.filter((p) => p.species === sp).length} manchots · ${islandsOf(sp).join(", ")}`,
+}));
+---
+
+<Layout title="Rendu dynamique">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">Rendu dynamique · à la demande</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Une page par espèce</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Toutes ces pages viennent d'un seul fichier : <code class="text-crimson">rendu-dynamique/[species].astro</code>.
+    Avec <code class="text-crimson">export const prerender = false;</code>, elles ne sont pas générées au build : le
+    serveur (fonction Netlify) les fabrique à chaque visite, en lisant l'espèce dans
+    <code class="text-crimson">Astro.params</code>. Une espèce inconnue renvoie une erreur 404.
+  </p>
+
+  <LinkCards label="Espèces" links={links} />
+</Layout>

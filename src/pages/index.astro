@@ -1,21 +1,35 @@
 ---
-import PlotFigure from "../components/PlotFigure.astro";
 import Layout from "../layouts/Layout.astro";
-import * as Plot from "@observablehq/plot";
-import penguins from "../assets/penguins.json";
+import ChartCard from "../components/ChartCard.astro";
+import LinkCards from "../components/LinkCards.astro";
+import { allPenguinsChart } from "../lib/penguins";
+import { menu } from "../lib/menu";
 ---
 
-<Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <PlotFigure
-    options={{
-      marks: [
-        Plot.dot(penguins, {
-          x: "culmen_length_mm",
-          y: "culmen_depth_mm",
-          stroke: "species",
-        }),
-      ],
-    }}
-  />
+<Layout title="Accueil">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">R3.12 · Dataviz · Alex Ringenbach</p>
+  <h1 class="font-display text-3xl leading-none sm:text-6xl">Manchots<br />de Palmer</h1>
+  <p class="mt-8 max-w-xl text-lg leading-relaxed text-white/85">
+    Tous les TP de R3.12 réunis sur un seul site : des graphiques Observable Plot rendus côté serveur ou côté client
+    avec Astro et TailwindCSS, et plusieurs façons de les présenter et de les générer.
+  </p>
+
+  {
+    menu.map((tp) => (
+      <section aria-labelledby={`section-${tp.label}`} class="mt-16">
+        <p class="text-xs font-bold uppercase tracking-[.35em] text-crimson">{tp.label}</p>
+        <h2 id={`section-${tp.label}`} class="mt-2 font-display text-3xl">
+          {tp.title}
+        </h2>
+        <LinkCards
+          label={`Pages du ${tp.label}`}
+          links={tp.links.map((l) => ({ href: l.href, title: l.label, text: l.text }))}
+        />
+      </section>
+    ))
+  }
+
+  <div class="mt-16">
+    <ChartCard chart={allPenguinsChart()} headingId="figure-toutes-especes" />
+  </div>
 </Layout>

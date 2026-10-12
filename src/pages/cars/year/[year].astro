@@ -1,0 +1,57 @@
+---
+import cars from "../../../assets/cars.json";
+export const prerender = false;
+import Layout from "../../../layouts/Layout.astro";
+import ChartCard from "../../../components/ChartCard.astro";
+import PillNav from "../../../components/PillNav.astro";
+import * as Plot from "@observablehq/plot";
+
+const { year } = Astro.params;
+
+// Filtrer les voitures pour l'année spécifiée
+const filteredCars = cars.filter((car) => car.year.toString() === year);
+
+if (filteredCars.length === 0) {
+  return new Response(null, { status: 404, statusText: "Aucune voiture pour cette année" });
+}
+
+const years = [...new Set(cars.map((c) => c.year))].sort();
+const links = years.map((y) => ({
+  href: `/cars/year/${y}/`,
+  label: `19${y}`,
+  current: y.toString() === year,
+}));
+
+// Configuration du graphique (échelles communes à toutes les années pour comparer)
+const chart = {
+  title: `Relation puissance vs poids — voitures de 19${year}`,
+  subtitle: `${filteredCars.length} voiture(s) trouvée(s) pour l'année 19${year}`,
+  label: `Nuage de points des ${filteredCars.length} voitures de 19${year} : poids en abscisse, puissance en ordonnée.`,
+  caption: "Plus une voiture est lourde, plus elle est puissante : le nuage monte vers la droite.",
+  options: {
+    grid: true,
+    marks: [
+      Plot.dot(filteredCars, {
+        x: "weight (lb)",
+        y: "power (hp)",
+        fill: "#c50337",
+        r: 4,
+        fillOpacity: 0.7,
+        tip: true,
+        title: "name",
+      }),
+    ],
+    x: { label: "Poids (lb)", domain: [1500, 5200] },
+    y: { label: "Puissance (hp)", domain: [40, 240] },
+  },
+};
+---
+
+<Layout title={`Voitures de 19${year}`}>
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    <a href="/cars/year/" class="transition hover:text-white">Voitures</a> · Astro.params
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Voitures de l'année 19{year}</h1>
+  <PillNav label="Changer d'année" links={links} />
+  <ChartCard chart={chart} headingId="fig-cars" />
+</Layout>

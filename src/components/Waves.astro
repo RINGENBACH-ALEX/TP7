@@ -1,0 +1,81 @@
+---
+// Nappe de lignes ondulées animées, reprise du portfolio (décoratif).
+interface Props {
+  tone?: "light" | "accent";
+  intensity?: number;
+  seed?: number;
+}
+
+const { tone = "accent", intensity = 0.6, seed = 0 } = Astro.props;
+
+const W = 1440;
+const H = 600;
+
+const lines = Array.from({ length: 7 }, (_, i) => {
+  const y = Math.round(70 + (i / 6) * (H - 140));
+  const amp = Math.round(24 + Math.sin(i * 1.7 + seed) * 12);
+  const wl = [360, 288, 240][i % 3];
+  const half = wl / 2;
+  const dir = Math.sin(i * 2.3 + seed) > 0 ? -1 : 1;
+
+  let d = `M0 ${y}q${wl / 4} ${dir * 2 * amp} ${half} 0`;
+  for (let x = half; x < W * 2; x += half) d += `t${half} 0`;
+
+  return {
+    d,
+    w: 2 + (i % 4) * 1.6,
+    o: ((0.12 + 0.06 * Math.sin(i * 2.1 + seed)) * intensity).toFixed(3),
+  };
+});
+---
+
+<div
+  class="waves"
+  aria-hidden="true"
+  style={`--wave-color:${tone === "accent" ? "#c50337" : "#fff"}`}
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox={`0 0 ${W} ${H}`}
+    preserveAspectRatio="xMidYMid slice"
+  >
+    <g
+      class="waves__drift"
+      fill="none"
+      stroke="currentColor"
+      stroke-linecap="round"
+    >
+      {
+        lines.map((l) => (
+          <path d={l.d} stroke-width={l.w} style={`opacity:${l.o}`} />
+        ))
+      }
+    </g>
+  </svg>
+</div>
+
+<style>
+  .waves {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    color: var(--wave-color);
+  }
+  .waves svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .waves__drift {
+      animation: waves-scroll 40s linear infinite;
+    }
+  }
+  @keyframes waves-scroll {
+    to {
+      transform: translateX(-1440px);
+    }
+  }
+</style>

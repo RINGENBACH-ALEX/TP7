@@ -1,0 +1,41 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="TP4 · Simple Penguin">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    TP4 · Essai 02 · Côté client
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">
+    Les manchots, côté client
+  </h1>
+  <p class="mt-4 max-w-lg text-white/80">
+    Même page que l'essai précédent, mais le graphique en barres aléatoire
+    est remplacé par le nuage de points des manchots (longueur du bec contre
+    épaisseur du bec, une couleur par espèce).
+  </p>
+
+  <div id="myplot" class="mt-8 overflow-x-auto rounded-3xl bg-white p-6"></div>
+</Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import penguins from "../../assets/penguins.json";
+
+  const plot = Plot.plot({
+    grid: true,
+    x: { label: "Longueur du bec (mm)" },
+    y: { label: "Épaisseur du bec (mm)" },
+    color: { legend: true },
+    marks: [
+      Plot.dot(penguins, {
+        x: "culmen_length_mm",
+        y: "culmen_depth_mm",
+        stroke: "species",
+      }),
+    ],
+  });
+
+  const div = document.querySelector("#myplot");
+  div?.append(plot);
+</script>

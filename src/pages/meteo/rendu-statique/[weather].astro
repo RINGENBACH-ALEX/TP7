@@ -1,0 +1,29 @@
+---
+import type { GetStaticPaths } from "astro";
+import Layout from "../../../layouts/Layout.astro";
+import ChartCard from "../../../components/ChartCard.astro";
+import PillNav from "../../../components/PillNav.astro";
+import { weatherTypes, labelOf, weatherChart } from "../../../lib/weather";
+
+// Une page générée au build pour chaque type de temps
+export const getStaticPaths = (() => {
+  return weatherTypes.map((weather) => ({ params: { weather } }));
+}) satisfies GetStaticPaths;
+
+const { weather } = Astro.params;
+
+const links = weatherTypes.map((type) => ({
+  href: `/meteo/rendu-statique/${type}/`,
+  label: labelOf(type),
+  current: type === weather,
+}));
+---
+
+<Layout title={`${labelOf(weather)} · rendu statique`}>
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    <a href="/meteo/rendu-statique/" class="transition hover:text-white">Météo · rendu statique</a> · getStaticPaths()
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Jours de type « {labelOf(weather)} »</h1>
+  <PillNav label="Changer de type de temps" links={links} />
+  <ChartCard chart={weatherChart(weather)} headingId={`fig-${weather}`} />
+</Layout>

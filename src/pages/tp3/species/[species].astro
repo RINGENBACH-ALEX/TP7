@@ -1,0 +1,36 @@
+---
+// TP3 : une page par espèce, navigation par un <select> (location.pathname)
+import Layout from "../../../layouts/Layout.astro";
+import ChartCard from "../../../components/ChartCard.astro";
+import { penguinChart } from "../../../lib/penguins";
+
+const especes = ["Adelie", "Gentoo", "Chinstrap"];
+
+export function getStaticPaths() {
+  return ["Adelie", "Gentoo", "Chinstrap"].map((species) => ({ params: { species } }));
+}
+
+const { species } = Astro.params;
+---
+
+<Layout title={`TP3 · ${species}`}>
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP3 · Une page par graphique</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Penguins {species}</h1>
+
+  <label for="species" class="sr-only">Choisir une espèce</label>
+  <select
+    id="species"
+    class="my-6 rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+  >
+    {especes.map((sp) => <option value={sp} selected={sp === species}>{sp}</option>)}
+  </select>
+
+  <ChartCard chart={penguinChart(species)} headingId={`fig-${species}`} />
+</Layout>
+
+<script>
+  // Changement d'espèce : on change de page (trailingSlash "always" : / final)
+  document.querySelector("#species")?.addEventListener("change", (evt) => {
+    location.pathname = "/tp3/species/" + (evt.target as HTMLSelectElement).value + "/";
+  });
+</script>

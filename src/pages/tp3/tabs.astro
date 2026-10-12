@@ -1,0 +1,15 @@
+---
+// TP3 : même contenu que la page à ancres, mais en onglets accessibles
+import Layout from "../../layouts/Layout.astro";
+import Tabs from "../../components/Tabs.astro";
+import { penguinChart } from "../../lib/penguins";
+
+const items = ["Adelie", "Gentoo", "Chinstrap"].map((id) => ({ id, label: id, chart: penguinChart(id) }));
+---
+
+<Layout title="TP3 · Page à onglets">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP3 · Une page avec des onglets</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Les 3 espèces sur une seule page</h1>
+
+  <Tabs items={items} />
+</Layout>

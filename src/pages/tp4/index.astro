@@ -1,0 +1,78 @@
+---
+// Sommaire des essais de graphiques Observable Plot construits côté client
+// (dans le navigateur, via un <script> de page, plutôt que côté serveur
+// par un composant .astro comme dans le reste du site).
+import Layout from "../../layouts/Layout.astro";
+
+const essais = [
+  {
+    href: "/tp4/simple/",
+    numero: "01",
+    titre: "Simple",
+    description:
+      "Reprise quasi telle quelle de l'exemple « Plot in vanilla HTML » de la doc Observable Plot.",
+  },
+  {
+    href: "/tp4/simple-penguin/",
+    numero: "02",
+    titre: "Simple Penguin",
+    description:
+      "Même page, mais le graphique aléatoire est remplacé par le nuage de points des manchots.",
+  },
+  {
+    href: "/tp4/penguin-filtre/",
+    numero: "03",
+    titre: "Penguin avec filtre",
+    description:
+      "Un <select> d'espèce pilote le graphique, redessiné dynamiquement côté client.",
+  },
+  {
+    href: "/tp4/penguin-filtres/",
+    numero: "04",
+    titre: "Penguin avec plusieurs filtres",
+    description:
+      "Les mêmes manchots, filtrés cette fois par espèce, île et sexe.",
+  },
+  {
+    href: "/tp4/cars-filtres/",
+    numero: "05",
+    titre: "Cars avec filtres",
+    description:
+      "Le même exercice appliqué à un second jeu de données : des voitures, filtrées par origine et nombre de cylindres.",
+  },
+];
+---
+
+<Layout title="TP4">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    TP4 R3.12 · Dataviz
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-6xl">
+    Graphiques<br />côté client
+  </h1>
+  <p class="mt-8 max-w-lg text-lg leading-relaxed text-white/85">
+    Les mêmes graphiques Observable Plot que dans le reste du site, mais
+    construits et redessinés entièrement dans le navigateur.
+  </p>
+
+  <nav
+    aria-label="Les essais de graphiques côté client"
+    class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+  >
+    {
+      essais.map((e) => (
+        <a
+          href={e.href}
+          aria-label={`Essai ${e.numero} : ${e.titre}`}
+          class="rounded-[1.75rem] border border-white/15 bg-white/5 p-6 transition hover:border-crimson"
+        >
+          <p class="text-[10px] font-bold uppercase tracking-[.25em] text-crimson">
+            {e.numero}
+          </p>
+          <h2 class="mt-2 font-display text-2xl">{e.titre}</h2>
+          <p class="mt-2 text-sm text-white/70">{e.description}</p>
+        </a>
+      ))
+    }
+  </nav>
+</Layout>

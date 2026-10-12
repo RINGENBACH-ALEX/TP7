@@ -1,0 +1,46 @@
+---
+// TP7 · 2) Carte GeoJSON + Plot rendue côté serveur
+import Layout from "../../layouts/Layout.astro";
+import ChartCard from "../../components/ChartCard.astro";
+import LinkCards from "../../components/LinkCards.astro";
+import { listePeriode, populationMapOptions, populationMapLabel } from "../../lib/population";
+
+// Côté serveur, la sélection est fixe : dernière année, tous sexes et tous âges
+const periode = listePeriode[0];
+const chart = {
+  title: `Population par département au 1er janvier ${periode}`,
+  subtitle: "France métropolitaine · ensemble de la population · Insee, estimations localisées de population",
+  label: populationMapLabel(periode, "Ensemble", "Ensemble"),
+  caption:
+    "Les départements les plus peuplés (Nord, Paris et sa petite couronne, Bouches-du-Rhône, Rhône) ressortent en rouge foncé ; la « diagonale du vide », du Massif central aux Ardennes, reste claire.",
+  options: populationMapOptions(periode, "Ensemble", "Ensemble"),
+};
+---
+
+<Layout title="TP7 · GeoJSON côté serveur">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP7 · 2 · GeoJSON / Plot</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Carte côté serveur</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Le contour des départements (<code class="text-crimson">departements.geojson.json</code>) est dessiné par{" "}
+    <code class="text-crimson">Plot.geo</code>, et chaque département est coloré selon sa population, lue dans{" "}
+    <code class="text-crimson">populationMain.json</code>. Le SVG est généré au build, aucun JavaScript n'est
+    envoyé au navigateur.
+  </p>
+
+  <div class="mt-8 [&_svg]:mx-auto">
+    <ChartCard chart={chart} headingId="figure-population-serveur" />
+  </div>
+
+  <LinkCards
+    label="Version suivante"
+    cols="sm:grid-cols-2"
+    links={[
+      {
+        href: "/tp7/geojson-client/",
+        title: "Côté client, avec filtres",
+        text: "La même carte construite dans le navigateur, avec un <select> pour l'année, le sexe et l'âge.",
+        tag: "Suite",
+      },
+    ]}
+  />
+</Layout>

@@ -1,0 +1,32 @@
+---
+// Carte blanche contenant un graphique (titre, sous-titre, PlotFigure, légende),
+// utilisée par toutes les pages du site.
+import PlotFigure from "./PlotFigure.astro";
+
+export interface Chart {
+  title: string;
+  subtitle: string;
+  label: string;
+  caption?: string;
+  options: Record<string, unknown>;
+}
+
+interface Props {
+  chart: Chart;
+  headingId: string;
+}
+const { chart, headingId } = Astro.props;
+---
+
+<figure aria-labelledby={headingId} class="rounded-3xl bg-white p-4 text-ink sm:p-8">
+  <h2 id={headingId} class="text-lg font-bold">{chart.title}</h2>
+  <p class="mt-1 text-sm text-slate-500">{chart.subtitle}</p>
+  <PlotFigure label={chart.label} options={chart.options} />
+  {
+    chart.caption && (
+      <figcaption class="mt-4 text-sm leading-relaxed text-slate-600">
+        {chart.caption}
+      </figcaption>
+    )
+  }
+</figure>

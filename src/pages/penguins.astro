@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Tabs from "../components/Tabs.astro";
+import { species, penguinChart } from "../lib/penguins";
+
+// Un onglet par espèce, construit par une boucle (map) sur la liste
+// d'espèces elle-même déduite des données (map + [...new Set()])
+const items = species.map((sp) => ({ id: sp, label: sp, chart: penguinChart(sp) }));
+---
+
+<Layout title="Toutes les espèces">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">Une page avec des onglets</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Les {species.length} espèces sur une seule page</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    La liste des espèces ({species.join(", ")}) n'est pas écrite à la main : elle est calculée avec
+    <code class="text-crimson">[...new Set(penguins.map((p) =&gt; p.species))]</code>, puis chaque onglet est
+    généré par un <code class="text-crimson">map</code>. Les flèches du clavier permettent de passer d'un onglet à
+    l'autre.
+  </p>
+
+  <Tabs items={items} />
+</Layout>

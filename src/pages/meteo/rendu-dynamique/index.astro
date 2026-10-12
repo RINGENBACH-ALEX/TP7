@@ -1,0 +1,24 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import LinkCards from "../../../components/LinkCards.astro";
+import { weather, weatherTypes, labelOf } from "../../../lib/weather";
+
+const links = weatherTypes.map((type) => ({
+  href: `/meteo/rendu-dynamique/${type}/`,
+  tag: "Temps",
+  title: labelOf(type),
+  text: `${weather.filter((d) => d.weather === type).length} jours`,
+}));
+---
+
+<Layout title="Météo · rendu dynamique">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">Météo · rendu dynamique</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Une page par type de temps</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Route <code class="text-crimson">meteo/rendu-dynamique/[weather].astro</code> avec
+    <code class="text-crimson">export const prerender = false;</code> : chaque page est rendue par le serveur à la
+    visite.
+  </p>
+
+  <LinkCards label="Types de temps" links={links} />
+</Layout>

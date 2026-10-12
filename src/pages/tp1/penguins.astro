@@ -1,0 +1,63 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PlotFigure from "../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+import penguins from "../../assets/penguins.json";
+
+const colonnes = ["species", "island", "culmen_length_mm", "culmen_depth_mm", "flipper_length_mm", "body_mass_g", "sex"];
+---
+
+<Layout title="TP1 · Penguins">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP1 · Palmer Penguins</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Exemple des penguins</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Jeu de données <code class="text-crimson">penguins.json</code> ({penguins.length} manchots, colonnes :
+    {colonnes.map((c, i) => <><code class="text-crimson">{c}</code>{i < colonnes.length - 1 ? ", " : ""}</>)}) affiché
+    avec Observable Plot, comme dans la
+    <a class="underline transition hover:text-crimson" href="https://observablehq.com/plot/getting-started">documentation</a>.
+  </p>
+
+  <div class="mt-10 grid gap-8">
+    <div class="rounded-3xl bg-white p-6 text-ink sm:p-8">
+      <PlotFigure
+        label="Nuage de points de la longueur en fonction de la profondeur du bec des manchots, coloré par espèce"
+        options={{
+          title: "Longueur et profondeur du bec des manchots",
+          subtitle: "Trois espèces de manchots de l'archipel Palmer, Antarctique",
+          caption: "Figure 1. Source : palmerpenguins (Gorman, Williams & Fraser, 2014).",
+          grid: true,
+          color: { legend: true },
+          x: { label: "Profondeur du bec (mm)" },
+          y: { label: "Longueur du bec (mm)" },
+          marks: [
+            Plot.dot(penguins, {
+              x: "culmen_depth_mm",
+              y: "culmen_length_mm",
+              stroke: "species",
+              strokeWidth: 1.5,
+              r: 4,
+            }),
+          ],
+        }}
+      />
+    </div>
+
+    <div class="rounded-3xl bg-white p-6 text-ink sm:p-8">
+      <PlotFigure
+        label="Histogramme de la masse corporelle des manchots par espèce"
+        options={{
+          title: "Masse corporelle des manchots",
+          caption: "Figure 2. Distribution de la masse corporelle des manchots par espèce.",
+          marginLeft: 60,
+          color: { legend: true },
+          x: { label: "Masse corporelle (g)" },
+          y: { label: "Nombre de manchots" },
+          marks: [
+            Plot.rectY(penguins, Plot.binX({ y: "count" }, { x: "body_mass_g", fill: "species" })),
+            Plot.ruleY([0]),
+          ],
+        }}
+      />
+    </div>
+  </div>
+</Layout>

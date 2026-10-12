@@ -1,0 +1,108 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="TP4 · Penguin avec plusieurs filtres">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    TP4 · Essai 04 · Côté client
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">
+    Espèce, île et sexe
+  </h1>
+  <p class="mt-4 max-w-lg text-white/80">
+    Même principe que l'essai précédent, avec trois filtres combinés :
+    espèce, île et sexe. Le graphique ne garde que les manchots qui
+    correspondent à tous les filtres actifs.
+  </p>
+
+  <div class="my-6 flex flex-wrap gap-4">
+    <div>
+      <label for="species" class="sr-only">Choisir une espèce</label>
+      <select
+        name="species"
+        id="species"
+        class="rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+      >
+        <option value="">All species</option>
+        <option value="Adelie">Adelie</option>
+        <option value="Chinstrap">Chinstrap</option>
+        <option value="Gentoo">Gentoo</option>
+      </select>
+    </div>
+    <div>
+      <label for="island" class="sr-only">Choisir une île</label>
+      <select
+        name="island"
+        id="island"
+        class="rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+      >
+        <option value="">All islands</option>
+        <option value="Biscoe">Biscoe</option>
+        <option value="Dream">Dream</option>
+        <option value="Torgersen">Torgersen</option>
+      </select>
+    </div>
+    <div>
+      <label for="sex" class="sr-only">Choisir un sexe</label>
+      <select
+        name="sex"
+        id="sex"
+        class="rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+      >
+        <option value="">All sexes</option>
+        <option value="MALE">Male</option>
+        <option value="FEMALE">Female</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="myplot" class="mt-2 overflow-x-auto rounded-3xl bg-white p-6"></div>
+</Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import penguins from "../../assets/penguins.json";
+
+  const selectSpecies = document.querySelector<HTMLSelectElement>("#species");
+  const selectIsland = document.querySelector<HTMLSelectElement>("#island");
+  const selectSex = document.querySelector<HTMLSelectElement>("#sex");
+
+  function renderPlot() {
+    const species = selectSpecies?.value;
+    const island = selectIsland?.value;
+    const sex = selectSex?.value;
+
+    const div = document.querySelector("#myplot");
+    if (!div) return;
+    div.innerHTML = "";
+
+    const data = penguins.filter(
+      (d) =>
+        (!species || d.species === species) &&
+        (!island || d.island === island) &&
+        (!sex || d.sex === sex),
+    );
+
+    const plot = Plot.plot({
+      grid: true,
+      x: { domain: [30, 60], label: "Longueur du bec (mm)" },
+      y: { domain: [12, 22], label: "Épaisseur du bec (mm)" },
+      color: { domain: ["Adelie", "Gentoo", "Chinstrap"], legend: true },
+      marks: [
+        Plot.dot(data, {
+          x: "culmen_length_mm",
+          y: "culmen_depth_mm",
+          stroke: "species",
+        }),
+      ],
+    });
+
+    div.append(plot);
+  }
+
+  selectSpecies?.addEventListener("change", renderPlot);
+  selectIsland?.addEventListener("change", renderPlot);
+  selectSex?.addEventListener("change", renderPlot);
+
+  renderPlot();
+</script>

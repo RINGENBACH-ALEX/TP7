@@ -1,0 +1,30 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Tabs from "../../components/Tabs.astro";
+import LinkCards from "../../components/LinkCards.astro";
+import { weather, weatherTypes, labelOf, weatherChart } from "../../lib/weather";
+
+// Un onglet par type de temps, construit par une boucle (map)
+const items = weatherTypes.map((type) => ({ id: type, label: labelOf(type), chart: weatherChart(type) }));
+
+const versions = [
+  { href: "/meteo/rendu-dynamique/", title: "Rendu dynamique", text: "Une page par type de temps, rendue à la demande." },
+  { href: "/meteo/rendu-statique/", title: "Rendu statique", text: "Les mêmes pages, générées au build avec getStaticPaths()." },
+];
+---
+
+<Layout title="Météo de Seattle">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">Bonus · autre dataset</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Météo de Seattle</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Le dataset <code class="text-crimson">weather</code> des
+    <a class="underline transition hover:text-crimson" href="https://observablehq.com/@observablehq/sample-datasets"
+      >sample datasets d'Observable</a
+    > : {weather.length} jours relevés à Seattle entre 2012 et 2015. Les {weatherTypes.length} types de temps sont
+    déduits des données, comme les espèces de manchots.
+  </p>
+
+  <Tabs items={items} />
+
+  <LinkCards label="Autres versions" links={versions} cols="sm:grid-cols-2" />
+</Layout>

@@ -1,0 +1,80 @@
+---
+// TP7 · 2) Carte GeoJSON + Plot exécutée côté client, pilotée par 3 <select>
+import Layout from "../../layouts/Layout.astro";
+import { listePeriode, listeSexe, listeAge } from "../../lib/population";
+
+const selectClass =
+  "rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson";
+const labelClass = "mb-1 block text-[10px] font-bold uppercase tracking-[.18em] text-white/60";
+---
+
+<Layout title="TP7 · GeoJSON côté client">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP7 · 2 · GeoJSON / Plot</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Carte côté client</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    La même carte que la <a class="underline transition hover:text-crimson" href="/tp7/geojson-serveur/"
+      >version serveur</a
+    >, mais construite dans le navigateur : chaque changement de sélection redessine la carte. Survoler un
+    département affiche sa population.
+  </p>
+
+  <div class="my-6 flex flex-wrap gap-4">
+    <div>
+      <label for="periode" class={labelClass}>Année</label>
+      <select id="periode" class={selectClass}>
+        {listePeriode.map((p, i) => <option selected={i === 0}>{p}</option>)}
+      </select>
+    </div>
+    <div>
+      <label for="sexe" class={labelClass}>Sexe</label>
+      <select id="sexe" class={selectClass}>
+        {listeSexe.map((s) => <option selected={s === "Ensemble"}>{s}</option>)}
+      </select>
+    </div>
+    <div>
+      <label for="age" class={labelClass}>Âge</label>
+      <select id="age" class={selectClass}>
+        {listeAge.map((a) => <option selected={a === "Ensemble"}>{a}</option>)}
+      </select>
+    </div>
+  </div>
+
+  <figure aria-labelledby="titre-carte" class="rounded-3xl bg-white p-4 text-ink sm:p-8">
+    <h2 id="titre-carte" class="text-lg font-bold">Population par département</h2>
+    <p id="sous-titre-carte" class="mt-1 text-sm text-slate-500">
+      France métropolitaine · Insee, estimations localisées de population au 1er janvier
+    </p>
+    <div id="carte" role="img" class="mt-3 overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full [&>figure>svg]:mx-auto">
+    </div>
+  </figure>
+</Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import { populationMapOptions, populationMapLabel } from "../../lib/population";
+
+  const elmYear = document.getElementById("periode") as HTMLSelectElement;
+  const elmSex = document.getElementById("sexe") as HTMLSelectElement;
+  const elmAge = document.getElementById("age") as HTMLSelectElement;
+  const elmCarte = document.getElementById("carte") as HTMLDivElement;
+  const elmTitre = document.getElementById("titre-carte") as HTMLHeadingElement;
+  const elmSousTitre = document.getElementById("sous-titre-carte") as HTMLParagraphElement;
+
+  function afficher() {
+    const selectedYear = Number(elmYear.value);
+    const selectedSex = elmSex.value;
+    const selectedAge = elmAge.value;
+
+    const plot = Plot.plot(populationMapOptions(selectedYear, selectedSex, selectedAge));
+
+    elmTitre.textContent = `Population par département au 1er janvier ${selectedYear}`;
+    elmSousTitre.textContent = `France métropolitaine · sexe : ${selectedSex.toLowerCase()} · âge : ${selectedAge.toLowerCase()} · Insee, estimations localisées de population`;
+    elmCarte.setAttribute("aria-label", populationMapLabel(selectedYear, selectedSex, selectedAge));
+    elmCarte.replaceChildren(plot);
+  }
+
+  elmYear.addEventListener("change", afficher);
+  elmSex.addEventListener("change", afficher);
+  elmAge.addEventListener("change", afficher);
+  afficher();
+</script>

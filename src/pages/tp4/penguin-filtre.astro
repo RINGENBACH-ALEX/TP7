@@ -1,0 +1,82 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="TP4 · Penguin avec filtre">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    TP4 · Essai 03 · Côté client
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">
+    Un filtre par espèce
+  </h1>
+  <p class="mt-4 max-w-lg text-white/80">
+    Même page que l'essai précédent, avec un <code>&lt;select&gt;</code> qui
+    pilote le graphique : à chaque changement, le graphique est reconstruit
+    côté client avec les seuls manchots de l'espèce choisie.
+  </p>
+
+  <label for="species" class="sr-only">Choisir une espèce</label>
+  <select
+    name="species"
+    id="species"
+    class="my-6 rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+  >
+    <option value="">All species</option>
+    <option value="Adelie">Adelie</option>
+    <option value="Chinstrap">Chinstrap</option>
+    <option value="Gentoo">Gentoo</option>
+  </select>
+
+  <div id="myplot" class="mt-2 overflow-x-auto rounded-3xl bg-white p-6"></div>
+</Layout>
+
+<script>
+  // Importe la librairie Plot d'ObservableHQ
+  import * as Plot from "@observablehq/plot";
+  // Importe les données des manchots depuis un fichier JSON
+  import penguins from "../../assets/penguins.json";
+
+  // Récupère l'élément select pour choisir l'espèce
+  const selectSpecies = document.querySelector<HTMLSelectElement>("#species");
+
+  // Fonction pour afficher le graphique
+  function renderPlot() {
+    // Récupère l'espèce sélectionnée
+    const species = selectSpecies?.value;
+
+    // Sélectionne la div où le graphique sera affiché
+    const div = document.querySelector("#myplot");
+    if (!div) return;
+
+    // Vide le contenu précédent de la div
+    div.innerHTML = "";
+
+    // Filtre les manchots selon l'espèce choisie (aucun filtre si "All species")
+    const data = species ? penguins.filter((d) => d.species === species) : penguins;
+
+    // Crée le graphique avec Plot
+    const plot = Plot.plot({
+      grid: true,
+      x: { domain: [30, 60], label: "Longueur du bec (mm)" },
+      y: { domain: [12, 22], label: "Épaisseur du bec (mm)" },
+      color: { domain: ["Adelie", "Gentoo", "Chinstrap"], legend: true },
+      marks: [
+        // Ajoute les points du graphique, filtrés selon l'espèce choisie
+        Plot.dot(data, {
+          x: "culmen_length_mm", // Axe X : longueur du bec
+          y: "culmen_depth_mm", // Axe Y : profondeur du bec
+          stroke: "species", // Couleur selon l'espèce
+        }),
+      ],
+    });
+
+    // Ajoute le graphique à la div
+    div.append(plot);
+  }
+
+  // Ajoute un écouteur d'événement pour le changement d'espèce (appel 'renderPlot')
+  selectSpecies?.addEventListener("change", renderPlot);
+
+  // Affiche le graphique au chargement de la page
+  renderPlot();
+</script>

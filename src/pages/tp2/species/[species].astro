@@ -1,0 +1,26 @@
+---
+// TP2 : une page par espèce, navigation par liens en pilules
+import Layout from "../../../layouts/Layout.astro";
+import ChartCard from "../../../components/ChartCard.astro";
+import PillNav from "../../../components/PillNav.astro";
+import { penguinChart } from "../../../lib/penguins";
+
+export function getStaticPaths() {
+  return ["Adelie", "Gentoo", "Chinstrap"].map((species) => ({ params: { species } }));
+}
+
+const { species } = Astro.params;
+
+const links = ["Adelie", "Gentoo", "Chinstrap"].map((sp) => ({
+  href: `/tp2/species/${sp}/`,
+  label: sp,
+  current: sp === species,
+}));
+---
+
+<Layout title={`TP2 · ${species}`}>
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP2 · Une page par graphique</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Penguins {species}</h1>
+  <PillNav label="Navigation entre les espèces" links={links} />
+  <ChartCard chart={penguinChart(species)} headingId={`fig-${species}`} />
+</Layout>

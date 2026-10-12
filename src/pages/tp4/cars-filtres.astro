@@ -1,0 +1,100 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="TP4 · Cars avec filtres">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    TP4 · Essai 05 · Côté client · Autre dataset
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">
+    Voitures : origine et cylindres
+  </h1>
+  <p class="mt-4 max-w-lg text-white/80">
+    Le même exercice que les manchots, appliqué à un autre jeu de données
+    (<a
+      href="https://github.com/vega/vega-datasets"
+      class="underline decoration-white/40 underline-offset-4 hover:text-crimson hover:decoration-crimson"
+      >vega-datasets</a
+    > · <code>cars.json</code>) : consommation contre puissance, filtrées
+    par origine et nombre de cylindres.
+  </p>
+
+  <div class="my-6 flex flex-wrap gap-4">
+    <div>
+      <label for="origin" class="sr-only">Choisir une origine</label>
+      <select
+        name="origin"
+        id="origin"
+        class="rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+      >
+        <option value="">All origins</option>
+        <option value="USA">USA</option>
+        <option value="Europe">Europe</option>
+        <option value="Japan">Japan</option>
+      </select>
+    </div>
+    <div>
+      <label for="cylinders" class="sr-only">Choisir un nombre de cylindres</label>
+      <select
+        name="cylinders"
+        id="cylinders"
+        class="rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+      >
+        <option value="">All cylinders</option>
+        <option value="3">3 cylinders</option>
+        <option value="4">4 cylinders</option>
+        <option value="5">5 cylinders</option>
+        <option value="6">6 cylinders</option>
+        <option value="8">8 cylinders</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="myplot" class="mt-2 overflow-x-auto rounded-3xl bg-white p-6"></div>
+</Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import cars from "../../assets/cars-vega.json";
+
+  const selectOrigin = document.querySelector<HTMLSelectElement>("#origin");
+  const selectCylinders = document.querySelector<HTMLSelectElement>("#cylinders");
+
+  function renderPlot() {
+    const origin = selectOrigin?.value;
+    const cylinders = selectCylinders?.value;
+
+    const div = document.querySelector("#myplot");
+    if (!div) return;
+    div.innerHTML = "";
+
+    const data = cars.filter(
+      (d) =>
+        (!origin || d.Origin === origin) &&
+        (!cylinders || String(d.Cylinders) === cylinders) &&
+        d.Horsepower != null &&
+        d.Miles_per_Gallon != null,
+    );
+
+    const plot = Plot.plot({
+      grid: true,
+      x: { label: "Puissance (hp)" },
+      y: { label: "Consommation (mpg)" },
+      color: { domain: ["USA", "Europe", "Japan"], legend: true },
+      marks: [
+        Plot.dot(data, {
+          x: "Horsepower",
+          y: "Miles_per_Gallon",
+          stroke: "Origin",
+        }),
+      ],
+    });
+
+    div.append(plot);
+  }
+
+  selectOrigin?.addEventListener("change", renderPlot);
+  selectCylinders?.addEventListener("change", renderPlot);
+
+  renderPlot();
+</script>

@@ -1,0 +1,154 @@
+---
+// TP7 · 0) Accessibilité des graphiques Observable Plot
+// https://observablehq.com/plot/features/plots#other-options
+// https://observablehq.com/plot/features/accessibility
+import * as Plot from "@observablehq/plot";
+import { Code } from "astro:components";
+import Layout from "../../layouts/Layout.astro";
+import PlotNative from "../../components/PlotNative.astro";
+import ChartCard from "../../components/ChartCard.astro";
+import { penguins, species, allPenguinsChart } from "../../lib/penguins";
+
+// 1. L'exemple de la documentation, tel quel
+const exemple = {
+  // Opt. Construit une figure/figcaption.
+  title: "For charts, an informative title",
+  subtitle: "Subtitle to follow with additional context",
+  caption: "Figure 1. A chart with a title, subtitle, and caption.",
+  // Sur le svg lui-même
+  ariaLabel: "label sur le svg lui même",
+  marks: [
+    Plot.frame(),
+    Plot.text(
+      [
+        "Titles, subtitles, captions, and annotations assist interpretation by telling the reader what’s interesting. Don’t make the reader work to find what you already know.",
+      ],
+      { lineWidth: 30, frameAnchor: "middle" },
+    ),
+  ],
+};
+
+// 2. Les mêmes options appliquées aux manchots
+const manchots = {
+  title: "Trois espèces, trois becs différents",
+  subtitle: `${penguins.length} manchots de l'archipel Palmer — longueur contre épaisseur du bec`,
+  caption:
+    "Figure 2. Chaque espèce occupe sa propre zone : Adelie à gauche, Gentoo en bas à droite, Chinstrap en haut à droite.",
+  ariaLabel: "Nuage de points des manchots de Palmer",
+  ariaDescription: `Longueur du bec en abscisse (30 à 60 mm), épaisseur en ordonnée (12 à 22 mm), une couleur par espèce : ${species.join(", ")}.`,
+  width: 1000,
+  height: 520,
+  grid: true,
+  x: { domain: [30, 60], label: "Longueur du bec (mm)" },
+  y: { domain: [12, 22], label: "Épaisseur du bec (mm)" },
+  color: { domain: species, legend: true },
+  marks: [Plot.dot(penguins, { x: "culmen_length_mm", y: "culmen_depth_mm", stroke: "species" })],
+};
+
+const codeExemple = `Plot.plot({
+  // Opt. Construit une figure/figcaption.
+  title: "For charts, an informative title",
+  subtitle: "Subtitle to follow with additional context",
+  caption: "Figure 1. A chart with a title, subtitle, and caption.",
+  // Sur le svg lui-même
+  ariaLabel: "label sur le svg lui même",
+  marks: [
+    Plot.frame(),
+    Plot.text(["Titles, subtitles, captions, …"], { lineWidth: 30, frameAnchor: "middle" })
+  ]
+})`;
+
+const codeRendu = `<figure>
+  <h2>For charts, an informative title</h2>
+  <h3>Subtitle to follow with additional context</h3>
+  <svg aria-label="label sur le svg lui même" …>…</svg>
+  <figcaption>Figure 1. A chart with a title, subtitle, and caption.</figcaption>
+</figure>`;
+---
+
+<Layout title="TP7 · Accessibilité">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP7 · 0 · a11y</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Accessibilité des graphiques</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Un graphique est une image : sans texte, un lecteur d'écran n'en dit rien. Observable Plot propose des{" "}
+    <a class="underline transition hover:text-crimson" href="https://observablehq.com/plot/features/plots#other-options"
+      >options</a
+    > pour lui donner un titre, un sous-titre, une légende et une description
+    (<a class="underline transition hover:text-crimson" href="https://observablehq.com/plot/features/accessibility"
+      >accessibilité</a
+    >).
+  </p>
+
+  <section aria-labelledby="titre-options" class="mt-14">
+    <h2 id="titre-options" class="font-display text-2xl sm:text-3xl">1. Les options de Plot</h2>
+    <ul class="mt-4 max-w-2xl list-disc space-y-1 pl-5 text-white/80">
+      <li>
+        <code class="text-crimson">title</code>, <code class="text-crimson">subtitle</code>,{" "}
+        <code class="text-crimson">caption</code> : Plot construit un <code>&lt;figure&gt;</code> avec un{" "}
+        <code>&lt;h2&gt;</code>, un <code>&lt;h3&gt;</code> et un <code>&lt;figcaption&gt;</code>.
+      </li>
+      <li>
+        <code class="text-crimson">ariaLabel</code> et <code class="text-crimson">ariaDescription</code> : posés sur le{" "}
+        <code>&lt;svg&gt;</code> lui-même (<code>aria-label</code>, <code>aria-description</code>).
+      </li>
+    </ul>
+    <div class="mt-6 grid gap-4 lg:grid-cols-2">
+      <div class="overflow-x-auto rounded-3xl border border-white/15 text-sm [&_pre]:p-5">
+        <Code code={codeExemple} lang="js" theme="github-dark" />
+      </div>
+      <div class="overflow-x-auto rounded-3xl border border-white/15 text-sm [&_pre]:p-5">
+        <Code code={codeRendu} lang="html" theme="github-dark" />
+      </div>
+    </div>
+    <div class="mt-6">
+      <PlotNative options={exemple} />
+    </div>
+  </section>
+
+  <section aria-labelledby="titre-manchots" class="mt-14">
+    <h2 id="titre-manchots" class="font-display text-2xl sm:text-3xl">2. Appliqué aux manchots</h2>
+    <p class="mt-4 max-w-2xl text-white/80">
+      Les mêmes options sur un vrai graphique, avec en plus un <code class="text-crimson">ariaDescription</code> qui
+      décrit les axes et les couleurs.
+    </p>
+    <div class="mt-6">
+      <PlotNative options={manchots} />
+    </div>
+  </section>
+
+  <section aria-labelledby="titre-maison" class="mt-14">
+    <h2 id="titre-maison" class="font-display text-2xl sm:text-3xl">3. Faire soi-même figure et figcaption</h2>
+    <p class="mt-4 max-w-2xl text-white/80">
+      L'autre solution, utilisée partout sur ce site depuis le TP1 : un <code>&lt;figure&gt;</code> écrit à la main,
+      relié à son titre par <code>aria-labelledby</code>, un <code>&lt;figcaption&gt;</code>, et le SVG exposé comme une
+      seule image (<code>role="img"</code> + <code>aria-label</code>) pour que le lecteur d'écran ne lise pas chaque
+      point.
+    </p>
+    <div class="mt-6">
+      <ChartCard chart={allPenguinsChart()} headingId="figure-maison" />
+    </div>
+  </section>
+
+  <section aria-labelledby="titre-verifier" class="mt-14">
+    <h2 id="titre-verifier" class="font-display text-2xl sm:text-3xl">4. Vérifier avec les DevTools</h2>
+    <p class="mt-4 max-w-2xl text-white/80">
+      L'essentiel est de vérifier avec les{" "}
+      <a
+        class="underline transition hover:text-crimson"
+        href="https://developer.chrome.com/docs/devtools/accessibility/reference?hl=fr">outils adéquats</a
+      > de Chrome :
+    </p>
+    <ol class="mt-4 max-w-2xl list-decimal space-y-2 pl-5 text-white/80">
+      <li>
+        <strong class="text-white">Panneau Lighthouse</strong> : cocher « Accessibilité », lancer l'analyse et corriger
+        ce qui est signalé (contrastes, noms accessibles, ordre des titres…).
+      </li>
+      <li>
+        <strong class="text-white">Arborescence d'accessibilité</strong> : dans Éléments, onglet Accessibilité, cocher
+        « Activer l'arborescence d'accessibilité complète », puis cliquer sur l'icône « Passer à la vue Arborescence de
+        l'accessibilité ». On y voit chaque graphique tel qu'un lecteur d'écran le présente : une{" "}
+        <em>figure</em> nommée par son titre, puis l'<em>image</em> avec son <code>aria-label</code>.
+      </li>
+    </ol>
+  </section>
+</Layout>

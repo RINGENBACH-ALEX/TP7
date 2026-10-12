@@ -1,9 +1,26 @@
 ---
 import * as Plot from "@observablehq/plot";
 import { JSDOM } from "jsdom";
-const { options } = Astro.props;
+const { options, label } = Astro.props;
 
-const plot = Plot.plot({ ...options, document: new JSDOM("").window.document });
+const plot = Plot.plot({
+  width: 1000,
+  height: 560,
+  marginLeft: 50,
+  marginBottom: 45,
+  ...options,
+  document: new JSDOM("").window.document,
+});
 ---
 
-<div set:html={plot.outerHTML} />
+<!--
+  Le graphique est un SVG généré par Plot. On l'expose comme une image unique
+  aux lecteurs d'écran (role="img" + aria-label), le détail chiffré n'ayant pas
+  de sens lu point par point ; le texte descriptif de la figure prend le relais.
+-->
+<div
+  class="mt-3 overflow-x-auto [&_svg]:h-auto [&_svg]:max-w-full"
+  role="img"
+  aria-label={label ?? "Graphique"}
+  set:html={plot.outerHTML}
+/>

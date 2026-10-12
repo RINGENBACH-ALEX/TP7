@@ -1,0 +1,23 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import LinkCards from "../../../components/LinkCards.astro";
+import { weather, weatherTypes, labelOf } from "../../../lib/weather";
+
+const links = weatherTypes.map((type) => ({
+  href: `/meteo/rendu-statique/${type}/`,
+  tag: "Temps",
+  title: labelOf(type),
+  text: `${weather.filter((d) => d.weather === type).length} jours`,
+}));
+---
+
+<Layout title="Météo · rendu statique">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">Météo · rendu statique</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Une page par type de temps</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Route <code class="text-crimson">meteo/rendu-statique/[weather].astro</code> : la fonction
+    <code class="text-crimson">getStaticPaths()</code> génère une page HTML par type de temps au moment du build.
+  </p>
+
+  <LinkCards label="Types de temps" links={links} />
+</Layout>

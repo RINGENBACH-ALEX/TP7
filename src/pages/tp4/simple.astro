@@ -1,0 +1,36 @@
+---
+import Layout from "../../layouts/Layout.astro";
+---
+
+<Layout title="TP4 · Simple">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    TP4 · Essai 01 · Côté client
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">
+    Plot en vanilla JS
+  </h1>
+  <p class="mt-4 max-w-lg text-white/80">
+    Reprise de l'exemple « Plot in vanilla HTML » (version ESM + CDN) de la
+    documentation Observable Plot : le graphique (un histogramme de valeurs
+    aléatoires) est construit et inséré dans la page entièrement côté client.
+  </p>
+
+  <div id="myplot" class="mt-8 overflow-x-auto rounded-3xl bg-white p-6"></div>
+</Layout>
+
+<script>
+  // Contrairement à l'exemple de la doc, pas besoin d'importer Plot depuis
+  // une URL de CDN : Astro sert de "packageur" pour les paquets installés
+  // par npm, donc un import "nu" suffit.
+  // Pas besoin non plus de type="module" sur la balise <script> : c'est déjà
+  // le comportement par défaut d'Astro pour les scripts d'une page .astro.
+  import * as Plot from "@observablehq/plot";
+
+  const plot = Plot.rectY(
+    { length: 10000 },
+    Plot.binX({ y: "count" }, { x: Math.random }),
+  ).plot();
+
+  const div = document.querySelector("#myplot");
+  div?.append(plot);
+</script>

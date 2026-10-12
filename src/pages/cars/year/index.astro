@@ -1,0 +1,28 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import LinkCards from "../../../components/LinkCards.astro";
+import cars from "../../../assets/cars.json";
+
+// Liste des années déduite des données
+const years = [...new Set(cars.map((c) => c.year))].sort();
+
+const links = years.map((y) => ({
+  href: `/cars/year/${y}/`,
+  tag: "Année",
+  title: `19${y}`,
+  text: `${cars.filter((c) => c.year === y).length} voitures`,
+}));
+---
+
+<Layout title="Voitures par année">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TD · Routes paramétriques</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Voitures par année</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Le dataset <code class="text-crimson">cars</code> ({cars.length} voitures, 1970 à 1982). Chaque année ouvre la
+    route <code class="text-crimson">cars/year/[year].astro</code>, rendue à la demande
+    (<code class="text-crimson">prerender = false</code>), qui filtre les voitures de l'année reçue dans
+    <code class="text-crimson">Astro.params</code>.
+  </p>
+
+  <LinkCards label="Années" links={links} cols="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
+</Layout>

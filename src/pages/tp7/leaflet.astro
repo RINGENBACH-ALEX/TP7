@@ -1,0 +1,135 @@
+---
+// TP7 · 1) Carte Leaflet de la liste des établissements d'enseignement supérieur
+// https://leafletjs.com/examples/quick-start/
+// Import des styles CSS de Leaflet pour l'affichage de la carte
+import "leaflet/dist/leaflet.css";
+import Layout from "../../layouts/Layout.astro";
+import listeEtablissements from "../../assets/listeEtablissements.json";
+
+// Types d'établissement (le premier type de chacun), déduits des données
+const typeOf = (e: { type: string }) => e.type.split(", ")[0];
+const listeTypes = [...new Set(listeEtablissements.map(typeOf))].sort();
+const listeRegions = [...new Set(listeEtablissements.map((e) => e.region))].sort((a, b) => a.localeCompare(b, "fr"));
+---
+
+<Layout title="TP7 · Leaflet">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP7 · 1 · Leaflet</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Établissements du supérieur</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Les {listeEtablissements.length} principaux établissements d'enseignement supérieur français, placés sur une carte{" "}
+    <a class="underline transition hover:text-crimson" href="https://leafletjs.com/">Leaflet</a> (fond
+    OpenStreetMap). Cliquer sur un point affiche le détail de l'établissement.
+  </p>
+
+  <div class="my-6 flex flex-wrap items-center gap-4">
+    <label for="type" class="sr-only">Type d'établissement</label>
+    <select
+      id="type"
+      class="rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+    >
+      <option value="">Tous les types</option>
+      {listeTypes.map((t) => <option value={t}>{t}</option>)}
+    </select>
+    <p id="compteur" aria-live="polite" class="text-xs font-bold uppercase tracking-[.18em] text-white/60"></p>
+  </div>
+
+  <div
+    id="map"
+    role="region"
+    aria-label="Carte interactive des établissements d'enseignement supérieur"
+    class="h-[600px] overflow-hidden rounded-3xl"
+  >
+  </div>
+
+  <!-- Alternative textuelle à la carte : la même liste, lisible au clavier et par un lecteur d'écran -->
+  <details class="mt-8 rounded-3xl border border-white/15 bg-white/5 p-5 sm:p-6">
+    <summary class="cursor-pointer text-xs font-bold uppercase tracking-[.18em] transition hover:text-crimson">
+      Liste des établissements par région
+    </summary>
+    {
+      listeRegions.map((r) => (
+        <section class="mt-6">
+          <h2 class="font-display text-xl">{r}</h2>
+          <ul class="mt-2 grid gap-1 text-sm text-white/80 sm:grid-cols-2">
+            {listeEtablissements
+              .filter((e) => e.region === r)
+              .sort((a, b) => a.nom.localeCompare(b.nom, "fr"))
+              .map((e) => (
+                <li>
+                  <a class="underline-offset-2 transition hover:text-crimson hover:underline" href={e.url}>
+                    {e.nom}
+                  </a>{" "}
+                  <span class="text-white/50">· {e.ville}</span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      ))
+    }
+  </details>
+</Layout>
+
+<script>
+  import listeEtablissements from "../../assets/listeEtablissements.json";
+
+  // Import de la bibliothèque Leaflet pour créer la carte interactive
+  import L from "leaflet";
+
+  // Dans l'élément d'ID "map" : création de la carte centrée sur la France (lat: 46.6033, lon: 1.883) avec un zoom niveau 6
+  const map = L.map("map").setView([46.6033, 1.883], 6);
+
+  // Fond de carte OpenStreetMap (https://leafletjs.com/examples/quick-start/)
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  }).addTo(map);
+
+  // Les marqueurs sont regroupés dans un calque qu'on vide à chaque changement de filtre
+  const calque = L.layerGroup().addTo(map);
+  const elmType = document.getElementById("type") as HTMLSelectElement;
+  const elmCompteur = document.getElementById("compteur") as HTMLParagraphElement;
+
+  type Etablissement = (typeof listeEtablissements)[number];
+
+  // Contenu de la popup construit en DOM (textContent) plutôt qu'en HTML concaténé
+  function popup(e: Etablissement) {
+    const div = document.createElement("div");
+    const titre = document.createElement("strong");
+    titre.textContent = e.sigle ? `${e.nom} (${e.sigle})` : e.nom;
+    const infos = document.createElement("p");
+    infos.textContent = `${e.type} · ${e.secteur} · ${e.ville} (${e.departement})`;
+    div.append(titre, infos);
+    if (e.url) {
+      const lien = document.createElement("a");
+      lien.href = e.url;
+      lien.target = "_blank";
+      lien.rel = "noopener";
+      lien.textContent = "Site de l'établissement";
+      div.append(lien);
+    }
+    return div;
+  }
+
+  function afficher() {
+    const type = elmType.value;
+    const liste = listeEtablissements.filter((e) => !type || e.type.split(", ")[0] === type);
+
+    calque.clearLayers();
+    for (const e of liste) {
+      L.circleMarker([e.lat, e.lon], {
+        radius: 6,
+        color: "#ffffff",
+        weight: 1.5,
+        fillColor: "#c50337",
+        fillOpacity: 0.85,
+      })
+        .bindTooltip(e.nom)
+        .bindPopup(popup(e))
+        .addTo(calque);
+    }
+    elmCompteur.textContent = `${liste.length} établissement${liste.length > 1 ? "s" : ""}`;
+  }
+
+  elmType.addEventListener("change", afficher);
+  afficher();
+</script>

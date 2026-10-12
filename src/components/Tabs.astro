@@ -1,0 +1,75 @@
+---
+// Onglets accessibles (rôles ARIA tablist / tab / tabpanel, flèches du clavier).
+// Les onglets sont générés par une boucle (map) sur la liste reçue.
+import ChartCard, { type Chart } from "./ChartCard.astro";
+
+interface Props {
+  items: { id: string; label: string; chart: Chart }[];
+}
+const { items } = Astro.props;
+---
+
+<div data-tabs class="mt-6">
+  <div role="tablist" class="mb-6 flex flex-wrap gap-2">
+    {
+      items.map((item, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${item.id}`}
+          aria-controls={`panel-${item.id}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          tabindex={i === 0 ? 0 : -1}
+          class="cursor-pointer rounded-full border border-white/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson aria-selected:border-crimson aria-selected:bg-crimson"
+        >
+          {item.label}
+        </button>
+      ))
+    }
+  </div>
+  {
+    items.map((item, i) => (
+      <section
+        role="tabpanel"
+        id={`panel-${item.id}`}
+        aria-labelledby={`tab-${item.id}`}
+        hidden={i !== 0}
+      >
+        <ChartCard chart={item.chart} headingId={`fig-${item.id}`} />
+      </section>
+    ))
+  }
+</div>
+
+<script>
+  // Changement d'onglet au clic, et navigation au clavier (flèches, Début, Fin)
+  document.querySelectorAll<HTMLElement>("[data-tabs]").forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>("[role=tab]")];
+
+    const select = (tab: HTMLButtonElement) => {
+      tabs.forEach((t) => {
+        const selected = t === tab;
+        t.setAttribute("aria-selected", String(selected));
+        t.tabIndex = selected ? 0 : -1;
+        root.querySelector<HTMLElement>(`#${t.getAttribute("aria-controls")}`)!.hidden = !selected;
+      });
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => select(tab));
+      tab.addEventListener("keydown", (evt) => {
+        const next = {
+          ArrowRight: tabs[(i + 1) % tabs.length],
+          ArrowLeft: tabs[(i - 1 + tabs.length) % tabs.length],
+          Home: tabs[0],
+          End: tabs[tabs.length - 1],
+        }[evt.key];
+        if (next) {
+          evt.preventDefault();
+          next.focus();
+          select(next);
+        }
+      });
+    });
+  });
+</script>

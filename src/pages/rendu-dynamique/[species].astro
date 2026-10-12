@@ -1,0 +1,32 @@
+---
+// Page rendue à la demande par le serveur (pas de pré-rendu au build)
+export const prerender = false;
+
+import Layout from "../../layouts/Layout.astro";
+import ChartCard from "../../components/ChartCard.astro";
+import PillNav from "../../components/PillNav.astro";
+import { species as allSpecies, penguinChart } from "../../lib/penguins";
+
+// Espèce reçue par l'URL : /rendu-dynamique/Adelie/ -> "Adelie"
+const { species } = Astro.params;
+
+// Espèce inconnue -> 404
+if (!species || !allSpecies.includes(species)) {
+  return new Response(null, { status: 404, statusText: "Espèce inconnue" });
+}
+
+const links = allSpecies.map((sp) => ({
+  href: `/rendu-dynamique/${sp}/`,
+  label: sp,
+  current: sp === species,
+}));
+---
+
+<Layout title={`${species} · rendu dynamique`}>
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    <a href="/rendu-dynamique/" class="transition hover:text-white">Rendu dynamique</a> · Astro.params
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Manchots {species}</h1>
+  <PillNav label="Changer d'espèce" links={links} />
+  <ChartCard chart={penguinChart(species)} headingId={`fig-${species}`} />
+</Layout>

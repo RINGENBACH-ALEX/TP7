@@ -1,0 +1,26 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import LinkCards from "../../components/LinkCards.astro";
+import { species, penguins, islandsOf } from "../../lib/penguins";
+
+// Un lien par espèce, généré par une boucle sur la liste calculée automatiquement
+const links = species.map((sp) => ({
+  href: `/rendu-statique/${sp}/`,
+  tag: "Espèce",
+  title: sp,
+  text: `${penguins.filter((p) => p.species === sp).length} manchots · ${islandsOf(sp).join(", ")}`,
+}));
+---
+
+<Layout title="Rendu statique">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">Rendu statique · pré-rendu au build</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Une page par espèce</h1>
+  <p class="mt-6 max-w-2xl leading-relaxed text-white/80">
+    Même route paramétrique (<code class="text-crimson">rendu-statique/[species].astro</code>), mais sans
+    <code class="text-crimson">prerender = false</code> : la fonction
+    <code class="text-crimson">getStaticPaths()</code> renvoie la liste des espèces et Astro génère une page HTML
+    pour chacune au moment du build. Aucun serveur n'est sollicité à la visite.
+  </p>
+
+  <LinkCards label="Espèces" links={links} />
+</Layout>

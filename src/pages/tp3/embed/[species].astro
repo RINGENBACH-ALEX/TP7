@@ -1,0 +1,25 @@
+---
+// Page "fragment" minimaliste (sans le Layout du site), destinée à être
+// chargée à l'intérieur de l'<iframe> de la page /tp3/iframe/.
+import "../../../styles/global.css";
+import ChartCard from "../../../components/ChartCard.astro";
+import { penguinChart } from "../../../lib/penguins";
+
+export function getStaticPaths() {
+  return ["Adelie", "Gentoo", "Chinstrap"].map((species) => ({ params: { species } }));
+}
+
+const { species } = Astro.params;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{species}</title>
+  </head>
+  <body class="bg-white">
+    <ChartCard chart={penguinChart(species)} headingId={`fig-${species}`} />
+  </body>
+</html>

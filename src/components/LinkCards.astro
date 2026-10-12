@@ -1,0 +1,26 @@
+---
+// Grille de cartes-liens numérotées (style de la page d'accueil).
+interface Props {
+  label: string;
+  links: { href: string; title: string; text: string; tag?: string }[];
+  cols?: string;
+}
+const { label, links, cols = "sm:grid-cols-2 lg:grid-cols-3" } = Astro.props;
+---
+
+<nav aria-label={label} class:list={["mt-10 grid gap-4", cols]}>
+  {
+    links.map((l, i) => (
+      <a
+        href={l.href}
+        class="rounded-3xl border border-white/15 bg-white/5 p-5 sm:rounded-[1.75rem] sm:p-6 transition hover:border-crimson"
+      >
+        <p class="text-[10px] font-bold uppercase tracking-[.25em] text-crimson">
+          {l.tag ?? String(i + 1).padStart(2, "0")}
+        </p>
+        <h2 class="mt-2 font-display text-2xl">{l.title}</h2>
+        <p class="mt-2 text-sm text-white/70">{l.text}</p>
+      </a>
+    ))
+  }
+</nav>

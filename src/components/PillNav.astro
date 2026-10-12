@@ -1,0 +1,22 @@
+---
+// Liens en pilules pour passer d'une page générée à une autre (ex. d'une espèce à l'autre).
+interface Props {
+  label: string;
+  links: { href: string; label: string; current?: boolean }[];
+}
+const { label, links } = Astro.props;
+---
+
+<nav aria-label={label} class="my-6 flex flex-wrap gap-2">
+  {
+    links.map((l) => (
+      <a
+        href={l.href}
+        aria-current={l.current ? "page" : undefined}
+        class="rounded-full border border-white/20 px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson aria-[current=page]:border-crimson aria-[current=page]:bg-crimson"
+      >
+        {l.label}
+      </a>
+    ))
+  }
+</nav>

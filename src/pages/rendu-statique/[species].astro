@@ -1,0 +1,29 @@
+---
+import type { GetStaticPaths } from "astro";
+import Layout from "../../layouts/Layout.astro";
+import ChartCard from "../../components/ChartCard.astro";
+import PillNav from "../../components/PillNav.astro";
+import { species as allSpecies, penguinChart } from "../../lib/penguins";
+
+// Une page générée au build pour chaque espèce
+export const getStaticPaths = (() => {
+  return allSpecies.map((species) => ({ params: { species } }));
+}) satisfies GetStaticPaths;
+
+const { species } = Astro.params;
+
+const links = allSpecies.map((sp) => ({
+  href: `/rendu-statique/${sp}/`,
+  label: sp,
+  current: sp === species,
+}));
+---
+
+<Layout title={`${species} · rendu statique`}>
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">
+    <a href="/rendu-statique/" class="transition hover:text-white">Rendu statique</a> · getStaticPaths()
+  </p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Manchots {species}</h1>
+  <PillNav label="Changer d'espèce" links={links} />
+  <ChartCard chart={penguinChart(species)} headingId={`fig-${species}`} />
+</Layout>

@@ -1,0 +1,61 @@
+---
+// TP3 : même slider que le TP2, mais le menu à ancres devient un <select>
+import Layout from "../../layouts/Layout.astro";
+import ChartCard from "../../components/ChartCard.astro";
+import { penguinChart } from "../../lib/penguins";
+
+const especes = ["Adelie", "Gentoo", "Chinstrap"];
+---
+
+<Layout title="TP3 · Page à ancres">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP3 · Une page avec des ancres</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Les 3 espèces sur une seule page</h1>
+
+  <label for="species-anchor" class="sr-only">Aller à un graphique</label>
+  <select
+    id="species-anchor"
+    class="my-6 rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+  >
+    {especes.map((id) => <option value={id}>{id}</option>)}
+  </select>
+
+  <!-- slider horizontal en CSS : flex + overflow-x-auto + scroll-snap -->
+  <div
+    role="region"
+    aria-label="Graphiques des trois espèces (faire défiler horizontalement)"
+    tabindex="0"
+    class="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto rounded-[1.75rem] border border-white/10 bg-white/5 p-4"
+  >
+    {
+      especes.map((id) => (
+        <section id={id} aria-labelledby={`fig-${id}`} class="item w-full shrink-0 snap-start">
+          <ChartCard chart={penguinChart(id)} headingId={`fig-${id}`} />
+        </section>
+      ))
+    }
+  </div>
+</Layout>
+
+<script>
+  const select = document.querySelector<HTMLSelectElement>("#species-anchor");
+  const items = document.querySelectorAll(".item");
+
+  // Le select change l'ancre de la page (location.hash)
+  select?.addEventListener("change", (evt) => {
+    location.hash = (evt.target as HTMLSelectElement).value;
+  });
+
+  // Et il suit le défilement du slider
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && select) {
+          select.value = entry.target.getAttribute("id") ?? select.value;
+        }
+      });
+    },
+    { threshold: 0.5 },
+  );
+
+  items.forEach((item) => observer.observe(item));
+</script>

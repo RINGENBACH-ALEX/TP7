@@ -1,0 +1,39 @@
+---
+// TP3 : un <select> qui change la propriété src d'un <iframe> en JavaScript,
+// au lieu de changer location.pathname (pages) ou location.hash (ancres).
+import Layout from "../../layouts/Layout.astro";
+
+const especes = ["Adelie", "Gentoo", "Chinstrap"];
+---
+
+<Layout title="TP3 · Page à cadre">
+  <p class="mb-4 text-xs font-bold uppercase tracking-[.35em] text-crimson">TP3 · Une page avec un cadre (iframe)</p>
+  <h1 class="font-display text-3xl leading-none sm:text-5xl">Un graphique dans un &lt;iframe&gt;</h1>
+  <p class="mt-4 max-w-lg text-white/80">
+    Le <code>&lt;select&gt;</code> ne change pas de page ni d'ancre : il modifie la propriété <code>src</code> de
+    l'<code>&lt;iframe&gt;</code> ci-dessous en JavaScript, qui charge alors une page dédiée à l'espèce choisie.
+  </p>
+
+  <label for="species-iframe" class="sr-only">Choisir une espèce</label>
+  <select
+    id="species-iframe"
+    class="my-6 rounded-full border border-white/20 bg-ink px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-white transition hover:border-crimson"
+  >
+    {especes.map((id) => <option value={id}>{id}</option>)}
+  </select>
+
+  <iframe
+    id="species-frame"
+    title="Graphique de l'espèce sélectionnée"
+    src="/tp3/embed/Adelie/"
+    class="h-[40rem] w-full rounded-3xl border border-white/10 bg-white"></iframe>
+</Layout>
+
+<script>
+  const select = document.querySelector<HTMLSelectElement>("#species-iframe");
+  const frame = document.querySelector<HTMLIFrameElement>("#species-frame");
+
+  select?.addEventListener("change", (evt) => {
+    if (frame) frame.src = "/tp3/embed/" + (evt.target as HTMLSelectElement).value + "/";
+  });
+</script>

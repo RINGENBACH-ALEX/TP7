@@ -1,26 +1,183 @@
 ---
 import "../styles/global.css";
+import Waves from "../components/Waves.astro";
+
+import { menu } from "../lib/menu";
+
+const { title = "TP R3.12" } = Astro.props;
+
+// Lien actif = celui dont le préfixe (match, ou à défaut href) est le plus
+// long préfixe de la page courante. Le menu des TP vient de src/lib/menu.ts.
+const path = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : Astro.url.pathname + "/";
+type Link = { href: string; match?: string };
+const prefixOf = (l: Link) => l.match ?? l.href;
+const allLinks: Link[] = [{ href: "/" }, ...menu.flatMap((m) => m.links)];
+const currentLink = allLinks
+  .filter((l) => (prefixOf(l) === "/" ? path === "/" : path.startsWith(prefixOf(l))))
+  .sort((a, b) => prefixOf(b).length - prefixOf(a).length)[0];
+const isCurrent = (l: Link) => l === currentLink;
+const isCurrentGroup = (links: Link[]) => links.some(isCurrent);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <title>Astro Basics</title>
+    <meta name="theme-color" content="#02060e" />
+    <link rel="preload" href="/fonts/bevan-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <title>{title} · TP7 R3.12</title>
   </head>
-  <body>
-    <slot />
+
+  <body class="relative min-h-screen overflow-x-hidden bg-ink text-white">
+    <a
+      href="#contenu"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-crimson focus:px-5 focus:py-3 focus:text-xs focus:font-bold focus:uppercase focus:tracking-[.15em] focus:text-white"
+    >
+      Aller au contenu
+    </a>
+    <div class="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+      <Waves tone="accent" intensity={0.4} seed={1} />
+    </div>
+    <div
+      class="pointer-events-none fixed -right-40 -top-40 h-[38rem] w-[38rem] rounded-full bg-crimson opacity-25 blur-[130px]"
+      aria-hidden="true"
+    >
+    </div>
+
+    <header class="relative z-30 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6">
+      <div
+        class="flex flex-wrap items-center justify-between gap-4 rounded-full border border-white/15 bg-ink/90 px-5 py-3 sm:px-6 shadow-xl backdrop-blur"
+      >
+        <a
+          href="/"
+          aria-label="TP R3.12 — retour à l'accueil"
+          aria-current={isCurrent(allLinks[0]) ? "page" : undefined}
+          class="text-xs font-bold uppercase tracking-[.25em] text-white transition hover:text-crimson aria-[current=page]:text-crimson"
+        >
+          TP R3.12
+        </a>
+        <!-- Mobile : un seul bouton « Menu » qui déplie tous les TP en pleine largeur -->
+        <details class="nav-dropdown group sm:hidden">
+          <summary
+            class="flex cursor-pointer list-none items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] transition hover:text-crimson [&::-webkit-details-marker]:hidden"
+          >
+            Menu
+            <span aria-hidden="true" class="text-base leading-none group-open:hidden">☰</span>
+            <span aria-hidden="true" class="hidden text-base leading-none group-open:inline">✕</span>
+          </summary>
+          <nav
+            aria-label="Navigation principale"
+            class="absolute inset-x-4 top-[calc(100%-1rem)] z-40 max-h-[75vh] overflow-y-auto rounded-3xl border border-white/15 bg-ink/95 p-3 shadow-xl backdrop-blur"
+          >
+            {
+              menu.map((item) => (
+                <div class="py-2">
+                  <p
+                    aria-current={isCurrentGroup(item.links) ? "page" : undefined}
+                    class="px-3 pb-1 text-[10px] font-bold uppercase tracking-[.25em] text-white/50 aria-[current=page]:text-crimson"
+                  >
+                    {item.label}
+                  </p>
+                  {item.links.map((l) => (
+                    <a
+                      href={l.href}
+                      aria-current={isCurrent(l) ? "page" : undefined}
+                      class="block rounded-xl px-3 py-2.5 text-sm font-bold text-white/85 transition hover:bg-white/10 hover:text-crimson aria-[current=page]:text-crimson"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              ))
+            }
+          </nav>
+        </details>
+
+        <nav
+          aria-label="Navigation principale"
+          class="hidden flex-wrap items-center gap-5 text-[10px] font-bold uppercase tracking-[.18em] sm:flex sm:gap-6"
+        >
+          {
+            menu.map((item, i) => (
+              <details class="nav-dropdown group relative">
+                <summary
+                  aria-current={isCurrentGroup(item.links) ? "page" : undefined}
+                  class="flex cursor-pointer list-none items-center gap-1 transition hover:text-crimson aria-[current=page]:text-crimson [&::-webkit-details-marker]:hidden"
+                >
+                  {item.label}
+                  <span aria-hidden="true" class="text-[8px] transition group-open:rotate-180">
+                    ▾
+                  </span>
+                </summary>
+                <div
+                  class:list={[
+                    "absolute top-[calc(100%+.75rem)] z-40 min-w-60 rounded-2xl border border-white/15 bg-ink/95 p-2 shadow-xl backdrop-blur",
+                    i < menu.length / 2 ? "left-0" : "right-0",
+                  ]}
+                >
+                  {item.links.map((l) => (
+                    <a
+                      href={l.href}
+                      aria-current={isCurrent(l) ? "page" : undefined}
+                      class="block rounded-xl px-4 py-2 text-[10px] font-bold normal-case tracking-normal text-white/85 transition hover:bg-white/10 hover:text-crimson aria-[current=page]:text-crimson"
+                    >
+                      {l.label}
+                    </a>
+                  ))}
+                </div>
+              </details>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenu" tabindex="-1" class="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-12">
+      <slot />
+    </main>
+
+    <footer aria-label="Pied de page" class="relative z-10 mx-auto max-w-6xl px-4 pb-10 sm:px-6 sm:pb-16">
+      <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0c0c12] p-6 sm:rounded-[2.5rem] sm:p-12">
+        <div aria-hidden="true">
+          <Waves tone="accent" intensity={0.7} seed={8} />
+        </div>
+        <div class="relative z-1">
+          <p class="font-display text-2xl text-crimson sm:text-3xl">Dataviz avec Astro</p>
+          <p class="mt-4 text-[10px] uppercase tracking-[.2em] text-white/55">
+            TP1 à TP7 R3.12 · Astro · TailwindCSS · Observable Plot
+          </p>
+          <p class="mt-1 text-[10px] uppercase tracking-[.2em] text-white/55">Alex Ringenbach</p>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
 
-<style>
-  html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-  }
-</style>
+<script>
+  // Un seul menu déroulant ouvert à la fois, fermeture au clic en dehors
+  // ou avec Échap. Le <details> fonctionne déjà sans JS : simple confort.
+  const dropdowns = document.querySelectorAll<HTMLDetailsElement>(".nav-dropdown");
+
+  dropdowns.forEach((dropdown) => {
+    dropdown.addEventListener("toggle", () => {
+      if (dropdown.open) {
+        dropdowns.forEach((other) => {
+          if (other !== dropdown) other.open = false;
+        });
+      }
+    });
+  });
+
+  document.addEventListener("click", (evt) => {
+    dropdowns.forEach((dropdown) => {
+      if (dropdown.open && !dropdown.contains(evt.target as Node)) dropdown.open = false;
+    });
+  });
+
+  document.addEventListener("keydown", (evt) => {
+    if (evt.key === "Escape") dropdowns.forEach((dropdown) => (dropdown.open = false));
+  });
+</script>
